@@ -1,0 +1,4 @@
+CONFIRM_DECLINE_BROADCAST = 'CNFM_DCLN_BRDCST'
+CONFIRM_BROADCAST = 'CONFIRM'
+DECLINE_BROADCAST = 'DECLINE'
+# TODO: make a class which would encode all callback query data
