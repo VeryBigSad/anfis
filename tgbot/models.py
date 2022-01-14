@@ -19,6 +19,9 @@ class User(CreateUpdateTracker):
     language_code = models.CharField(max_length=8, help_text="Telegram client's lang", **nb)
     deep_link = models.CharField(max_length=64, **nb)
 
+    has_subscription = models.BooleanField(default=False)
+    subscription_end = models.DateTimeField(default=None, null=True, blank=True)
+
     is_blocked_bot = models.BooleanField(default=False)
     is_banned = models.BooleanField(default=False)
 

@@ -40,11 +40,12 @@ INSTALLED_APPS = [
 
     # 3rd party apps
     'django_celery_beat',
-    'debug_toolbar',
+    'channels',
 
     # local apps
     'tgbot.apps.TgbotConfig',
     'arcgis',
+    'proxy_manager.apps.ProxyManagerConfig'
 ]
 
 MIDDLEWARE = [
@@ -123,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
@@ -150,6 +151,21 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_DEFAULT_QUEUE = 'default'
 
 
+# cache
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "MAX_ENTRIES": 99999999
+        },
+        "KEY_PREFIX": "dtb_cache",
+        "TIMEOUT": None
+    }
+}
+
+
 # -----> TELEGRAM
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 ENABLE_DECORATOR_LOGGING = os.getenv('ENABLE_DECORATOR_LOGGING', True)
@@ -161,3 +177,10 @@ if TELEGRAM_TOKEN is None:
     sys.exit(1)
 
 TELEGRAM_LOGS_CHAT_ID = os.getenv("TELEGRAM_LOGS_CHAT_ID", default=None)
+IGNORE_ADMIN_COMMANDS_IF_USER = True
+
+MINUTES_TO_CHECK_PUBLIC_PROXY = 30
+# TODO: use this ^ and thing below
+PROXY_SECONDS_TIMEOUT = 10
+DEFAULT_THROTTLER_RATE_LIMIT = 18
+DEFAULT_THROTTLER_PERIOD = 1

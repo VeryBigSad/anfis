@@ -25,8 +25,16 @@ celery
 redis
 django-celery-beat
 
+# asynchronous shit
+channels
+aiohttp
+asyncio_throttle
+aiosonic
+
 # Telegram
 python-telegram-bot
 
-# monitoring
-# sentry-sdk
+# cache
+django_redis
+
+

@@ -1,7 +1,8 @@
 import random
 
 import telegram
-from telegram import Update
+from telegram import Update, ParseMode
+from telegram.ext import CallbackContext, ConversationHandler
 
 from tgbot.models import User
 from tgbot.tasks import broadcast_message
@@ -9,9 +10,44 @@ from .keyboard_utils import keyboard_confirm_decline_broadcasting
 from .manage_data import CONFIRM_DECLINE_BROADCAST, CONFIRM_BROADCAST
 from .static_text import broadcast_command, broadcast_wrong_format, error_with_html, \
     message_is_sent, declined_message_broadcasting
-from ..utils.decorators import admin_only_command, handler_logging
+from ..utils import keyboard
+from ..utils.decorators import admin_only_command, handler_logging, send_typing_action
 
 
+@send_typing_action
+@admin_only_command
+@handler_logging()
+def broadcast_command_without_message(update: Update, context: CallbackContext):
+    """ нажать "рассылка" в админ меню """
+    update.message.reply_text("Чтобы сделать рассылку, напишите ее текст ниже.\n"
+                              "Вы можете использовать <b>HTML</b> форматирование.",
+                              reply_markup=keyboard.cancel_keyboard(),
+                              parse_mode=ParseMode.HTML)
+    return 'get_broadcast_message'
+
+
+@send_typing_action
+@admin_only_command
+@handler_logging()
+def broadcast_command_without_message_2(update: Update, context: CallbackContext):
+    """ если текст подходит по форматированию, отправляет сообщение подтверждения о рассылке"""
+    try:
+        update.message.reply_text(
+            text=update.message.text,
+            parse_mode=telegram.ParseMode.HTML,
+            reply_markup=keyboard_confirm_decline_broadcasting(),
+        )
+    except telegram.error.BadRequest as e:
+        update.message.reply_text(
+            text=error_with_html.format(reason=e),
+            parse_mode=telegram.ParseMode.HTML,
+            reply_markup=keyboard.cancel_keyboard()
+        )
+        return 'get_broadcast_message'
+    return ConversationHandler.END
+
+
+@send_typing_action
 @admin_only_command
 @handler_logging()
 def broadcast_command_with_message(update: Update, context):
@@ -42,6 +78,7 @@ def broadcast_command_with_message(update: Update, context):
         )
 
 
+@send_typing_action
 @admin_only_command
 @handler_logging()
 def broadcast_decision_handler(update: Update, context) -> None:

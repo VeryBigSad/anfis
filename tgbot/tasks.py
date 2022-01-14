@@ -3,26 +3,31 @@
 """
 
 import time
+import subprocess
 from typing import Union, List, Optional, Dict
 
 import telegram
 from celery.utils.log import get_task_logger
 
 from dtb.celery import app
-from tgbot.handlers.broadcast_message.utils import _send_message, _from_celery_entities_to_entities, \
+from proxy_manager.models import Proxy
+from tgbot.handlers.broadcast_message.utils import (
+    _send_message,
+    _from_celery_entities_to_entities,
     _from_celery_markup_to_markup
+)
 
 logger = get_task_logger(__name__)
 
 
 @app.task(ignore_result=True)
 def broadcast_message(
-    user_ids: List[Union[str, int]],
-    text: str,
-    entities: Optional[List[Dict]] = None,
-    reply_markup: Optional[List[List[Dict]]] = None,
-    sleep_between: float = 0.4,
-    parse_mode=telegram.ParseMode.HTML,
+        user_ids: List[Union[str, int]],
+        text: str,
+        entities: Optional[List[Dict]] = None,
+        reply_markup: Optional[List[List[Dict]]] = None,
+        sleep_between: float = 0.8,
+        parse_mode=telegram.ParseMode.HTML,
 ) -> None:
     """ It's used to broadcast message to big amount of users """
     logger.info(f"Going to send message: '{text}' to {len(user_ids)} users")
@@ -41,6 +46,6 @@ def broadcast_message(
             logger.info(f"Broadcast message was sent to {user_id}")
         except Exception as e:
             logger.error(f"Failed to send message to {user_id}, reason: {e}")
-        time.sleep(max(sleep_between, 0.1))
+        time.sleep(max(sleep_between, 0.8))
 
     logger.info("Broadcast finished!")

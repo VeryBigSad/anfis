@@ -1,3 +1,6 @@
+import os
+import random
+import string
 from typing import Dict
 
 import telegram
@@ -33,3 +36,16 @@ def show_file_id(update: Update, context) -> None:
             parse_mode=telegram.ParseMode.HTML,
             reply_to_message_id=message_id
         )
+
+
+def get_filepath_for_file(file_type, id_length=5):
+    return f'temp/{file_type}_' \
+           f'{"".join([random.choice(string.digits + string.ascii_letters) for _ in range(id_length)])}.file'
+
+
+def get_line_list_from_file(file):
+    filename = get_filepath_for_file('random_function_dunno')
+    file.download(filename)
+    lines = [i for i in open(filename).read().split('\n') if i != '']
+    os.remove(filename)
+    return lines

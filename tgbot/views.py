@@ -3,7 +3,7 @@ import logging
 
 from django.http import JsonResponse
 from django.views import View
-from tgbot.handlers.dispatcher import process_telegram_event
+from tgbot.dispatcher import process_telegram_event
 
 from dtb.settings import DEBUG
 

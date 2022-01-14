@@ -21,26 +21,37 @@ def send_stacktrace_to_tg_chat(update: Update, context) -> None:
     # You might need to add some logic to deal with messages longer than the 4096 character limit.
     message = (
         f'An exception was raised while handling an update\n'
-        f'<pre>{html.escape(tb_string)}</pre>'
+        f'<pre>{html.escape(tb_string)}'
     )
 
     user_message = """
-😔 Something broke inside the bot.
-It is because we are constantly improving our service but sometimes we might forget to test some basic stuff.
-We already received all the details to fix the issue.
-Return to /start
+😔 Что-то сломалось.
+Мы постоянно добавляем новые фичи, но иногда забываем что-то поправить.
+Мы уже получили все детали чтобы пофиксить это, просим прощения за неудобства!.
+Вы можете вернуться к /start или написать нам в /contact
 """
     context.bot.send_message(
         chat_id=u.user_id,
         text=user_message,
     )
 
-    admin_message = f"⚠️⚠️⚠️ for {u.tg_str}:\n{message}"[:4090]
+    admin_message = f"⚠️⚠️⚠️ for {u.tg_str}:\n{message}"[:4090] + '</pre>'
     if TELEGRAM_LOGS_CHAT_ID:
         context.bot.send_message(
             chat_id=TELEGRAM_LOGS_CHAT_ID,
             text=admin_message,
             parse_mode=telegram.ParseMode.HTML,
         )
-    else:
-        logging.error(admin_message)
+    logging.error(admin_message)
+
+
+def send_logs_to_tg_chat(user_who_had_error: User, logs: str):
+    from tgbot.dispatcher import bot
+    admin_message = f"⚠️⚠️⚠️ for {user_who_had_error.tg_str}:\n{logs}"[:4090]
+    if TELEGRAM_LOGS_CHAT_ID:
+        bot.send_message(
+            chat_id=TELEGRAM_LOGS_CHAT_ID,
+            text=admin_message,
+            parse_mode=telegram.ParseMode.HTML,
+        )
+    logging.error(admin_message)
